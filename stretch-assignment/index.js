@@ -12,7 +12,7 @@ class Block {
       let x = this.getXPos();
       console.log('Ignition!');
       let moving = setInterval(() => {
-        let count = 0;
+        let count =
         x ++;
         count++;
         this.block.style.left = x + "px";
