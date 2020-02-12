@@ -7,9 +7,40 @@ class Block {
     this.startPosition = pos;
     this.block.style.position = "relative";
     this.block.style.top = this.block.style.left = "0px";
-    // this.block.addEventListener('click', () => {
-    //     this.moveUp();
-    // })
+    this.clickHeld = false;
+    this.block.addEventListener('mousedown', () => {
+      let x = this.getXPos();
+      console.log('Ignition!');
+      let moving = setInterval(() => {
+        let count = 0;
+        x ++;
+        count++;
+        this.block.style.left = x + "px";
+        if (count * lag >= 250){
+          this.clickHeld = true;
+          console.log('held');
+        }
+      },lag);
+      this.block.addEventListener('mouseleave', () => {
+        clearInterval(moving);
+        if (!this.clickHeld){
+          this.moveUp();
+          console.log(this, this.clickHeld);
+        } else {
+          this.clickHeld = false;
+        }
+        this.returnLeft();
+      });
+      this.block.addEventListener('mouseup', () => {
+        clearInterval(moving);
+        if (!this.clickHeld){
+          this.moveUp();
+        } else {
+          this.clickHeld = false;
+        }
+        this.returnLeft();
+      });
+    });
   }
   getXPos() {
     return Number(this.block.style.left.slice(0, -2));
@@ -17,10 +48,8 @@ class Block {
   getYPos() {
     return Number(this.block.style.top.slice(0, -2));
   }
-  slideTo(toX = this.getXPos(), toY = this.getYPos()) {
-    let x = this.getXPos();
+  slideTo(toY = this.getYPos()) {
     let y = this.getYPos();
-    console.log(this.startPosition, toX, toY);
     let dY = setInterval(() => {
       if (y == toY) {
         clearInterval(dY);
@@ -29,40 +58,35 @@ class Block {
         this.block.style.top = y + "px";
       }
     }, lag);
-    let dX = setInterval(() => {
-      if (x == toX) {
-        clearInterval(dX);
-      } else {
-        x += Math.sign(toX - x);
-        this.block.style.left = x + "px";
-      }
-    }, lag);
   }
   updatePosition() {
     stackArray[this.position] = this;
-    console.log(this.startPosition,this.position);
-    this.slideTo(0,((this.startPosition - this.position) * 120));
+    this.slideTo(((this.startPosition - this.position) * 120));
   }
-  // shift(dir) {
-  //   if (dir == "r") {
-  //     this.slideTo(150, undefined);
-  //     console.log('Shifting right');
-  //   }
-  //   if (dir == "l") {
-  //     this.slideTo(0, undefined);
-  //   }
-  // }
   moveDown() {
     this.position--;
     this.updatePosition();
   }
   moveUp() {
-    // this.shift("r");
     for (let i = this.position + 1; i <= 4; i++) {
       stackArray.find(obj => obj.position == i).moveDown();
     }
     this.position = 4;
     this.updatePosition();
+  }
+  returnLeft() {
+    let x = this.getXPos();
+    this.block.addEventListener('mousedown', () => {
+      clearInterval(returning);
+    })
+    let returning = setInterval(() => {
+      if (x > 0){
+        x--;
+        this.block.style.left = x + "px";
+      } else {
+        clearInterval(returning);
+      }
+    },lag);
   }
 }
 
